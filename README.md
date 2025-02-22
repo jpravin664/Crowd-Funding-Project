@@ -63,5 +63,5 @@ Then, open [**http://localhost:5173/**](http://localhost:5173/) in your browser.
 Feel free to fork the repository and submit pull requests.
 
 
-### ✨ **Made with ❤️ by Pravin J**
+## ✨ **Made with ❤️ by Pravin J**
 
