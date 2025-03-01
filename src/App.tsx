@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useParams } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { FeaturedProjects } from './components/FeaturedProjects';
@@ -7,6 +7,7 @@ import { ProjectDetails } from './components/ProjectDetails';
 import { CreateProject } from './components/CreateProject';
 import { UserProfile } from './components/UserProfile';
 import { CategoryView } from './components/CategoryView';
+import { CategoriesPage } from './components/CategoriesPage';
 import { Login } from './components/Login';
 import { Register } from './components/Register';
 
@@ -22,7 +23,7 @@ const SAMPLE_USER = {
 const CATEGORY_PROJECTS = {
   Technology: [
     {
-      id: '1',
+      id: 'smart-home-assistant',
       title: 'Smart Home Assistant',
       description: 'A revolutionary AI-powered home assistant that learns your preferences and automates your daily routines.',
       imageUrl: 'https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&q=80',
@@ -36,7 +37,7 @@ const CATEGORY_PROJECTS = {
       }
     },
     {
-      id: '2',
+      id: 'eco-laptop',
       title: 'Eco-Friendly Laptop',
       description: 'A sustainable laptop made from recycled materials with exceptional performance.',
       imageUrl: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&q=80',
@@ -50,57 +51,27 @@ const CATEGORY_PROJECTS = {
       }
     }
   ],
-  Art: [
+  "Eco-friendly": [
     {
-      id: '3',
-      title: 'Digital Art Gallery',
-      description: 'An immersive virtual reality art gallery showcasing works from emerging artists worldwide.',
-      imageUrl: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&q=80',
+      id: 'eco-bottle',
+      title: 'Eco-Friendly Water Bottle',
+      description: 'A revolutionary water bottle made from biodegradable materials that naturally decompose within 5 years. Features double-wall vacuum insulation, keeping drinks cold for 24 hours or hot for 12 hours. Each bottle prevents approximately 167 single-use plastic bottles from entering our oceans annually.',
+      imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&q=80',
       goal: 50000,
-      raised: 35000,
-      daysLeft: 25,
-      category: 'Art',
+      raised: 32500,
+      daysLeft: 15,
+      category: 'Eco-friendly',
       creator: {
-        name: 'Emma Wilson',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80'
-      }
-    },
-    {
-      id: '4',
-      title: 'Street Art Festival',
-      description: 'A month-long festival celebrating urban art and culture in major cities.',
-      imageUrl: 'https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?auto=format&fit=crop&q=80',
-      goal: 75000,
-      raised: 45000,
-      daysLeft: 30,
-      category: 'Art',
-      creator: {
-        name: 'Marcus Rivera',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80'
-      }
-    }
-  ],
-  Design: [
-    {
-      id: '5',
-      title: 'Modular Furniture System',
-      description: 'Innovative furniture that adapts to your space and needs with minimal environmental impact.',
-      imageUrl: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80',
-      goal: 150000,
-      raised: 90000,
-      daysLeft: 40,
-      category: 'Design',
-      creator: {
-        name: 'Lisa Chen',
+        name: 'Sarah Chen',
         avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80'
       }
     }
   ],
   Film: [
     {
-      id: '6',
+      id: 'independent-documentary',
       title: 'Independent Documentary',
-      description: 'A compelling documentary exploring the impact of technology on traditional cultures.',
+      description: 'A compelling documentary exploring the impact of technology on traditional cultures, filmed across five continents. This groundbreaking film combines stunning cinematography with intimate storytelling to reveal how indigenous communities are adapting to and preserving their heritage in our digital age.',
       imageUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80',
       goal: 80000,
       raised: 60000,
@@ -114,9 +85,9 @@ const CATEGORY_PROJECTS = {
   ],
   Games: [
     {
-      id: '7',
+      id: 'educational-vr-game',
       title: 'Educational VR Game',
-      description: 'An immersive virtual reality game that makes learning history an adventure.',
+      description: 'An immersive virtual reality game that transforms history learning into an interactive adventure. Players can step into pivotal moments in history, make decisions that impact the narrative, and learn through hands-on experience. Features accurate historical recreations and expert-developed educational content.',
       imageUrl: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?auto=format&fit=crop&q=80',
       goal: 120000,
       raised: 85000,
@@ -130,9 +101,9 @@ const CATEGORY_PROJECTS = {
   ],
   Music: [
     {
-      id: '8',
+      id: 'interactive-music-experience',
       title: 'Interactive Music Experience',
-      description: 'A revolutionary platform that lets you collaborate with musicians worldwide in real-time.',
+      description: 'A revolutionary platform that enables real-time music collaboration across the globe. Musicians can jam together, compose, and perform virtually with professional-grade audio quality. Features include AI-powered music suggestions, virtual concert spaces, and integrated music education tools.',
       imageUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80',
       goal: 60000,
       raised: 40000,
@@ -146,9 +117,9 @@ const CATEGORY_PROJECTS = {
   ],
   Publishing: [
     {
-      id: '9',
+      id: 'interactive-childrens-book',
       title: 'Interactive Children\'s Book',
-      description: 'A series of augmented reality books that bring stories to life.',
+      description: 'A groundbreaking series of augmented reality children\'s books that bring stories to life. Using a smartphone or tablet, children can see characters leap off the page, interact with the story, and make choices that affect the narrative. Educational elements are seamlessly integrated into the immersive experience.',
       imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80',
       goal: 40000,
       raised: 25000,
@@ -162,9 +133,9 @@ const CATEGORY_PROJECTS = {
   ],
   Food: [
     {
-      id: '10',
+      id: 'sustainable-food-market',
       title: 'Sustainable Food Market',
-      description: 'A zero-waste marketplace connecting local farmers with urban communities.',
+      description: 'A zero-waste marketplace connecting local farmers directly with urban communities. This innovative platform combines a physical marketplace with digital ordering, featuring real-time inventory tracking, automated composting systems, and a community education center for sustainable living practices.',
       imageUrl: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&q=80',
       goal: 90000,
       raised: 65000,
@@ -177,6 +148,40 @@ const CATEGORY_PROJECTS = {
     }
   ]
 };
+
+// Get all projects from categories into a single array
+const ALL_PROJECTS = Object.values(CATEGORY_PROJECTS).flat();
+
+// Helper function to find a project by ID
+function findProjectById(id: string) {
+  for (const category of Object.values(CATEGORY_PROJECTS)) {
+    const project = category.find(p => p.id === id);
+    if (project) return project;
+  }
+  return null;
+}
+
+// ProjectDetailsWrapper component to handle project lookup
+function ProjectDetailsWrapper() {
+  const { id } = useParams();
+  const project = findProjectById(id || '');
+
+  if (!project) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Project not found</h2>
+          <p className="mt-2 text-gray-600">The project you're looking for doesn't exist.</p>
+          <Link to="/" className="mt-4 inline-block text-indigo-600 hover:text-indigo-500">
+            Return to home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return <ProjectDetails project={project} />;
+}
 
 function HomePage() {
   return (
@@ -207,7 +212,7 @@ function HomePage() {
                     </div>
                     <div className="mt-3 sm:mt-0 sm:ml-3">
                       <Link
-                        to="/Register"
+                        to="/discover"
                         className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg md:px-10"
                       >
                         Explore Projects
@@ -308,8 +313,9 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/project/:id" element={<ProjectDetails project={CATEGORY_PROJECTS.Technology[0]} />} />
+            <Route path="/project/:id" element={<ProjectDetailsWrapper />} />
             <Route path="/create" element={<CreateProject />} />
+            <Route path="/categories" element={<CategoriesPage allProjects={ALL_PROJECTS} />} />
             <Route
               path="/profile"
               element={

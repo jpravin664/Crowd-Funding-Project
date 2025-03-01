@@ -67,16 +67,10 @@ export function Footer() {
               </li>
               <li className="flex items-center text-gray-500 text-sm">
                 <Phone className="h-5 w-5 mr-2" />
-                +91 99999 99999
+                +91 (800) 123-4567
               </li>
             </ul>
           </div>
-        </div>
-
-        {/* Author Section */}
-        <div className="mt-12 text-center">
-          <h3 className="text-xl font-semibold text-gray-500 tracking-wider uppercase">Author</h3>
-          <p className="text-gray-800 text-4xl">Pravin J</p>
         </div>
 
         <div className="mt-12 border-t border-gray-200 pt-8">
