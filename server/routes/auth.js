@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { verifyToken } from '../middleware/auth.js';
+import { verifyToken, isAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -20,14 +20,15 @@ router.post('/register', async (req, res) => {
     user = new User({
       name,
       email,
-      password
+      password,
+      role: 'user' // Default role is user
     });
 
     await user.save();
 
     // Generate token
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -38,7 +39,8 @@ router.post('/register', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        avatar: user.avatar
+        avatar: user.avatar,
+        role: user.role
       }
     });
   } catch (error) {
@@ -65,7 +67,7 @@ router.post('/login', async (req, res) => {
 
     // Generate token
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -76,9 +78,42 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        avatar: user.avatar
+        avatar: user.avatar,
+        role: user.role
       }
     });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Create admin (for initial setup)
+router.post('/create-admin', async (req, res) => {
+  try {
+    const { name, email, password, adminSecret } = req.body;
+
+    // Verify admin secret
+    if (adminSecret !== process.env.ADMIN_SECRET) {
+      return res.status(403).json({ message: 'Invalid admin secret' });
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Create admin user
+    user = new User({
+      name,
+      email,
+      password,
+      role: 'admin'
+    });
+
+    await user.save();
+
+    res.status(201).json({ message: 'Admin created successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -121,7 +156,8 @@ router.put('/profile', verifyToken, async (req, res) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
-        bio: user.bio
+        bio: user.bio,
+        role: user.role
       }
     });
   } catch (error) {
@@ -151,6 +187,41 @@ router.put('/change-password', verifyToken, async (req, res) => {
     await user.save();
     
     res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all users (admin only)
+router.get('/users', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update user role (admin only)
+router.put('/users/:id/role', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const { role } = req.body;
+    
+    if (!['user', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

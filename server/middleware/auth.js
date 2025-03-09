@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import Project from '../models/Project.js';
 
 export const verifyToken = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -18,7 +19,7 @@ export const verifyToken = (req, res, next) => {
 
 // Admin middleware
 export const isAdmin = (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
   }
   next();
